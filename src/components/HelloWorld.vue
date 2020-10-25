@@ -4,7 +4,8 @@
       <tbody>
         <ul id="example-1" class="receiver">
           <li v-for="username in usernames" :key="username.username">
-            <b-button variant="dark" class ="message">{{ username.username }}</b-button>
+            <b-button variant="info" class ="message">{{ username.username }}</b-button>
+            <b-icon-trash v-if="status == false" @click="deleteUser(username.id)"></b-icon-trash>
           </li>
         </ul>
         <tr>
@@ -23,7 +24,14 @@
               </ul> -->
               <ul id="example-1" class="sender">
                 <li v-for="message in messages" :key="message.small">
+                  <small id="emailHelp" class="form-text text-muted">{{username}}</small>
                   <b-button variant="primary" class ="message">{{ message.small }}</b-button>
+                </li>
+              </ul>
+              <ul id="example-1" class="receiver">
+                <li v-for="message in messages" :key="message.small">
+                  <small id="emailHelp" class="form-text text-muted">Sender</small>
+                  <b-button variant="dark" class ="message">{{ message.small }}</b-button>
                 </li>
               </ul>
               <ul id="example-1" class="receiver">
@@ -88,11 +96,16 @@ export default {
       this.currentUser = 'Lisa'
     },
     async updateChat() {
-      this.messages.push({small: this.chatText});
-      this.items.push({messages: this.chatText});
-      const id = this.UserId;
-      await db.collection('username').doc(id).update({ messages: this.messages });
-      this.chatText = '';
+      if(this.chatText) {
+        this.messages.push({small: this.chatText});
+        this.items.push({messages: this.chatText});
+        const id = this.UserId;
+        await db.collection('username').doc(id).update({ messages: this.messages });
+        this.chatText = '';
+      }
+    },
+    async deleteUser(id) {
+      await db.collection('username').doc(id).delete();
     },
     switchUser() {
       this.username = '';
@@ -150,6 +163,7 @@ export default {
   border: 1px solid green;
   padding: 10px;
   text-align: center;
+  margin: 10%;
 }
 .sender {
   list-style-type: none;
