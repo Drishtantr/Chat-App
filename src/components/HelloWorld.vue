@@ -2,30 +2,40 @@
   <div class="hello">
     <table class="table">
       <tbody>
+        <ul id="example-1" class="receiver">
+          <li v-for="username in usernames" :key="username.username">
+            <b-button variant="dark" class ="message">{{ username.username }}</b-button>
+          </li>
+        </ul>
         <tr>
           <td v-if="status == false">
             <h2>LogIn</h2>
-            <h4>Enter your name and I'll direct you to the chat page.{{useColor}}</h4>
+            <h4>Enter your name and I'll direct you to the chat page.</h4>
             <input type="text" id="fname" v-model="username" v-on:keyup.enter="addItem()" name="fname">
-            <button @click="enterChat()">Enter Chat</button>
+            <button @click="addItem()">Enter Chat</button>
           </td>
           <td v-if="status">
-              <b-card-text>Welcome {{username}}</b-card-text>
-              <ul id="example-1" class="sender">
+              <b-card-text>Welcome {{username}} {{messages}}</b-card-text>
+              <!-- <ul id="example-1" class="sender">
                 <li v-for="item in items" :key="item.message">
                   <b-button variant="primary" class ="message">{{ item.message }}</b-button>
                 </li>
-              </ul>
+              </ul> -->
               <ul id="example-1" class="sender">
-                <li v-for="item in items" :key="item.message">
-                  <b-button variant="primary" class ="message">{{ item.message }}</b-button>
+                <li v-for="message in messages" :key="message.small">
+                  <b-button variant="primary" class ="message">{{ message.small }}</b-button>
                 </li>
               </ul>
               <ul id="example-1" class="receiver">
-                <li v-for="username in usernames" :key="username.username">
-                  <b-button variant="dark" class ="message">{{ username.username }}</b-button>
+                <li v-for="message in senderMessages" :key="message.small">
+                  <b-button variant="dark" class ="message">{{ message.small }}</b-button>
                 </li>
               </ul>
+              <!-- <ul id="example-1" class="sender">
+                <li v-for="item in items" :key="item.message">
+                  <b-button variant="primary" class ="message">{{ item.message }}</b-button>
+                </li>
+              </ul> -->
                 <input type="text" id="fname" v-model="chatText" v-on:keyup.enter="updateChat()" name="fname">
                 <b-button @click="updateChat()" variant="dark"><b-icon-cursor-fill></b-icon-cursor-fill></b-button><br>
               <b-button @click="switchUser()" variant="danger">LogOut</b-button>
@@ -46,19 +56,19 @@ export default {
   },
   created() {
     this.status = false;
-    this.useColor = this.color[Math.floor(Math.random()*this.color.length)];
   },
   data() {
     return {
       usernames: [],
-      useColor: '',
-      color: ['red', 'blue', 'green', 'yellow', 'purple'],
       username: '',
       status: false,
       currentUser: '',
       chatText: '',
       displayChat: false,
       items: [],
+      UserId: '',
+      messages: [],
+      senderMessages: [],
     }
   },
   methods: {
@@ -71,8 +81,11 @@ export default {
     chat() {
       this.currentUser = 'Lisa'
     },
-    updateChat() {
-      this.items.push({message: this.chatText});
+    async updateChat() {
+      this.messages.push({small: this.chatText});
+      this.items.push({messages: this.chatText});
+      const id = this.UserId;
+      await db.collection('username').doc(id).update({ messages: this.messages });
       this.chatText = '';
     },
     switchUser() {
@@ -81,10 +94,40 @@ export default {
     },
     async addItem() {
       if (this.username) {
-        await db.collection('username').add({ username: this.username });
+        await db.collection('username').add({ username: this.username, messages: []});
         this.items = [];
         this.status = true;
       }
+      await db.collection('username').where('username', '==', this.username).get().then((mySnapshot) => {
+        mySnapshot.forEach((myDoc) => {
+          const myData = {
+            id: myDoc.id,
+            messages: myDoc.data().messages,
+          };
+          this.UserId = myData.id;
+          this.messages = myData.messages;
+        });
+        // db.collection('UserData').doc(this.myUserId).set({
+        //   test: this.testPush,
+        //   testNo: this.testNum,
+        // },
+        // { merge: true });  rcVZJxSwQplU5jg8A4sm
+      });
+      await db.collection('username').where('username', '==', 'Benzema').get().then((mySnapshot) => {
+        mySnapshot.forEach((myDoc) => {
+          const myData = {
+            // id: myDoc.id,
+            messages: myDoc.data().messages,
+          };
+          // this.UserId = myData.id;
+          this.senderMessages = myData.messages;
+        });
+        // db.collection('UserData').doc(this.myUserId).set({
+        //   test: this.testPush,
+        //   testNo: this.testNum,
+        // },
+        // { merge: true });  rcVZJxSwQplU5jg8A4sm
+      });
     },
   },
   firestore: {
