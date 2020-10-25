@@ -56,9 +56,15 @@ export default {
   },
   created() {
     this.status = false;
+    console.log(this.usernames);
+    // for(i=0; i<this.usernames.length; i++) {
+    //   this.names = this.usernames.username
+    // }
+    //pull usernames
   },
   data() {
     return {
+      names: [],
       usernames: [],
       username: '',
       status: false,
