@@ -1,58 +1,119 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+    <table class="table">
+      <tbody>
+        <tr>
+          <td v-if="status == false">
+            <h2>LogIn</h2>
+            <h4>Enter your name and I'll direct you to the chat page.{{useColor}}</h4>
+            <input type="text" id="fname" v-model="username" v-on:keyup.enter="addItem()" name="fname">
+            <button @click="enterChat()">Enter Chat</button>
+          </td>
+          <td v-if="status">
+              <b-card-text>Welcome {{username}}</b-card-text>
+              <ul id="example-1" class="sender">
+                <li v-for="item in items" :key="item.message">
+                  <b-button variant="primary" class ="message">{{ item.message }}</b-button>
+                </li>
+              </ul>
+              <ul id="example-1" class="sender">
+                <li v-for="item in items" :key="item.message">
+                  <b-button variant="primary" class ="message">{{ item.message }}</b-button>
+                </li>
+              </ul>
+              <ul id="example-1" class="receiver">
+                <li v-for="username in usernames" :key="username.username">
+                  <b-button variant="dark" class ="message">{{ username.username }}</b-button>
+                </li>
+              </ul>
+                <input type="text" id="fname" v-model="chatText" v-on:keyup.enter="updateChat()" name="fname">
+                <b-button @click="updateChat()" variant="dark"><b-icon-cursor-fill></b-icon-cursor-fill></b-button><br>
+              <b-button @click="switchUser()" variant="danger">LogOut</b-button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
 <script>
+// import * as firebase from 'firebase/app';
+import { db } from '../firebase/db';
 export default {
   name: 'HelloWorld',
   props: {
     msg: String
-  }
+  },
+  created() {
+    this.status = false;
+    this.useColor = this.color[Math.floor(Math.random()*this.color.length)];
+  },
+  data() {
+    return {
+      usernames: [],
+      useColor: '',
+      color: ['red', 'blue', 'green', 'yellow', 'purple'],
+      username: '',
+      status: false,
+      currentUser: '',
+      chatText: '',
+      displayChat: false,
+      items: [],
+    }
+  },
+  methods: {
+    enterChat() {
+      if (this.username !== ''){
+        this.items = [];
+        this.status = true;
+      }      
+    },
+    chat() {
+      this.currentUser = 'Lisa'
+    },
+    updateChat() {
+      this.items.push({message: this.chatText});
+      this.chatText = '';
+    },
+    switchUser() {
+      this.username = '';
+      this.status = false;
+    },
+    async addItem() {
+      if (this.username) {
+        await db.collection('username').add({ username: this.username });
+        this.items = [];
+        this.status = true;
+      }
+    },
+  },
+  firestore: {
+    usernames: db.collection('username'),
+  },
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
+.hello {
+  margin: auto;
+  width: 50%;
+  border: 1px solid green;
+  padding: 10px;
+  text-align: center;
 }
-ul {
+.sender {
   list-style-type: none;
-  padding: 0;
+  text-align: right;
 }
-li {
-  display: inline-block;
-  margin: 0 10px;
+.receiver {
+  list-style-type: none;
+  text-align: left;
 }
-a {
-  color: #42b983;
+.message {
+  max-width: 20rem;
+  min-width: 2rem;
+  padding: 2px;
+  margin: 2px;
 }
 </style>
