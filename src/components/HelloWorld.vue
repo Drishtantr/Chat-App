@@ -2,12 +2,6 @@
   <div class="hello">
     <table class="table">
       <tbody>
-        <ul id="example-1" class="receiver">
-          <li v-for="username in usernames" :key="username.username">
-            <b-button variant="info" class ="message">{{ username.username }}</b-button>
-            <b-icon-trash v-if="status == false" @click="deleteUser(username.id)"></b-icon-trash>
-          </li>
-        </ul>
         <tr>
           <td v-if="status == false">
             <h2>LogIn</h2>
@@ -16,34 +10,18 @@
             <button @click="addItem()">Enter Chat</button>
           </td>
           <td v-if="status">
-              <b-card-text>Welcome {{username}} {{messages}}</b-card-text>
-              <!-- <ul id="example-1" class="sender">
-                <li v-for="item in items" :key="item.message">
-                  <b-button variant="primary" class ="message">{{ item.message }}</b-button>
-                </li>
-              </ul> -->
-              <ul id="example-1" class="sender">
-                <li v-for="message in messages" :key="message.small">
-                  <small id="emailHelp" class="form-text text-muted">{{username}}</small>
+              <b-card-text>{{welcomeMessage}} {{username}} Room no. 101 </b-card-text>
+              <ul id="example-1" class="receiver">
+                <li v-for="message in liveMessages.messages" :key="message.small">
+                  <!-- <small id="emailHelp" class="form-text text-muted">{{sentBy}}</small> -->
+                  <!-- <ul id="example-1" class="sender">
+                    <li v-for="sent in liveMessages.sentBy" :key="sent.small">
+                      <small id="emailHelp" class="form-text text-muted">{{ sent.small }}</small>
+                    </li>
+                  </ul> -->
                   <b-button variant="primary" class ="message">{{ message.small }}</b-button>
                 </li>
               </ul>
-              <ul id="example-1" class="receiver">
-                <li v-for="message in messages" :key="message.small">
-                  <small id="emailHelp" class="form-text text-muted">Sender</small>
-                  <b-button variant="dark" class ="message">{{ message.small }}</b-button>
-                </li>
-              </ul>
-              <ul id="example-1" class="receiver">
-                <li v-for="message in senderMessages" :key="message.small">
-                  <b-button variant="dark" class ="message">{{ message.small }}</b-button>
-                </li>
-              </ul>
-              <!-- <ul id="example-1" class="sender">
-                <li v-for="item in items" :key="item.message">
-                  <b-button variant="primary" class ="message">{{ item.message }}</b-button>
-                </li>
-              </ul> -->
                 <input type="text" id="fname" v-model="chatText" v-on:keyup.enter="updateChat()" name="fname">
                 <b-button @click="updateChat()" variant="dark"><b-icon-cursor-fill></b-icon-cursor-fill></b-button><br>
               <b-button @click="switchUser()" variant="danger">LogOut</b-button>
@@ -51,6 +29,13 @@
         </tr>
       </tbody>
     </table>
+    Registered Users: 
+    <ul id="example-1" class="receiver">
+      <li v-for="username in usernames" :key="username.username">
+        <b-button variant="info" class ="message">{{ username.username }}</b-button>
+        <b-icon-trash v-if="status == false" @click="deleteUser(username.id)"></b-icon-trash>
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -64,11 +49,6 @@ export default {
   },
   created() {
     this.status = false;
-    console.log(this.usernames);
-    // for(i=0; i<this.usernames.length; i++) {
-    //   this.names = this.usernames.username
-    // }
-    //pull usernames
   },
   data() {
     return {
@@ -82,25 +62,17 @@ export default {
       items: [],
       UserId: '',
       messages: [],
-      senderMessages: [],
+      liveMessages: [],
+      sentBy: '',
+      welcomeMessage: ''
     }
   },
   methods: {
-    enterChat() {
-      if (this.username !== ''){
-        this.items = [];
-        this.status = true;
-      }      
-    },
-    chat() {
-      this.currentUser = 'Lisa'
-    },
     async updateChat() {
       if(this.chatText) {
-        this.messages.push({small: this.chatText});
-        this.items.push({messages: this.chatText});
-        const id = this.UserId;
-        await db.collection('username').doc(id).update({ messages: this.messages });
+        this.liveMessages.messages.push({small: this.username + ': ' + this.chatText});
+        this.liveMessages.sentBy.push({small: this.username});
+        await db.collection('room').doc('JvBcBhHYySObwfqxAmtK').update({ messages: this.liveMessages.messages});
         this.chatText = '';
       }
     },
@@ -112,45 +84,25 @@ export default {
       this.status = false;
     },
     async addItem() {
+      var thisUser = [];
       if (this.username) {
+        this.usernames.forEach((item) => {
+          thisUser.push(item.username);
+        });
+        if (thisUser.includes(this.username)){
+          this.welcomeMessage = 'Welcome Back';
+        } else {
         await db.collection('username').add({ username: this.username, messages: []});
+        this.welcomeMessage = 'Welcome';
+        }
         this.items = [];
         this.status = true;
       }
-      await db.collection('username').where('username', '==', this.username).get().then((mySnapshot) => {
-        mySnapshot.forEach((myDoc) => {
-          const myData = {
-            id: myDoc.id,
-            messages: myDoc.data().messages,
-          };
-          this.UserId = myData.id;
-          this.messages = myData.messages;
-        });
-        // db.collection('UserData').doc(this.myUserId).set({
-        //   test: this.testPush,
-        //   testNo: this.testNum,
-        // },
-        // { merge: true });  rcVZJxSwQplU5jg8A4sm
-      });
-      await db.collection('username').where('username', '==', 'Benzema').get().then((mySnapshot) => {
-        mySnapshot.forEach((myDoc) => {
-          const myData = {
-            // id: myDoc.id,
-            messages: myDoc.data().messages,
-          };
-          // this.UserId = myData.id;
-          this.senderMessages = myData.messages;
-        });
-        // db.collection('UserData').doc(this.myUserId).set({
-        //   test: this.testPush,
-        //   testNo: this.testNum,
-        // },
-        // { merge: true });  rcVZJxSwQplU5jg8A4sm
-      });
     },
   },
   firestore: {
     usernames: db.collection('username'),
+    liveMessages: db.collection('room').doc('JvBcBhHYySObwfqxAmtK'),
   },
 }
 </script>
