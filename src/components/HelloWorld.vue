@@ -4,7 +4,7 @@
       <tbody>
         <tr>
           <td v-if="status == false">
-            <h2>LogIn</h2>
+            <h2>LogIn {{pickColour}}</h2>
             <h4>Enter your name and I'll direct you to the chat page.</h4>
             <input type="text" id="fname" v-model="username" v-on:keyup.enter="addItem()" name="fname">
             <button @click="addItem()">Enter Chat</button>
@@ -13,13 +13,7 @@
               <b-card-text>{{welcomeMessage}} {{username}} Room no. 101 </b-card-text>
               <ul id="example-1" class="receiver">
                 <li v-for="message in liveMessages.messages" :key="message.small">
-                  <!-- <small id="emailHelp" class="form-text text-muted">{{sentBy}}</small> -->
-                  <!-- <ul id="example-1" class="sender">
-                    <li v-for="sent in liveMessages.sentBy" :key="sent.small">
-                      <small id="emailHelp" class="form-text text-muted">{{ sent.small }}</small>
-                    </li>
-                  </ul> -->
-                  <b-button variant="primary" class ="message">{{ message.small }}</b-button>
+                  <p v-bind:style="{color: pickColour }" variant="primary" class ="message">{{ message.small }}</p>
                 </li>
               </ul>
                 <input type="text" id="fname" v-model="chatText" v-on:keyup.enter="updateChat()" name="fname">
@@ -49,9 +43,14 @@ export default {
   },
   created() {
     this.status = false;
+    this.colours = ['black'];
+    this.pickColour = this.colours[Math.floor(Math.random() * this.colours.length)];
+    console.log(this.pickColour);
   },
   data() {
     return {
+      colours: [],
+      pickColour: '',
       names: [],
       usernames: [],
       username: '',
