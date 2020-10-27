@@ -43,8 +43,9 @@ export default {
   },
   created() {
     this.status = false;
-    this.colours = ['black'];
+    this.colours = ['red', 'blue', 'pink', 'purple', 'yellow', 'black'];
     this.pickColour = this.colours[Math.floor(Math.random() * this.colours.length)];
+    this.pickColour = 'black';
     console.log(this.pickColour);
   },
   data() {
