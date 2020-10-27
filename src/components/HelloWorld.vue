@@ -4,7 +4,7 @@
       <tbody>
         <tr>
           <td v-if="status == false">
-            <h2>LogIn {{pickColour}}</h2>
+            <h2>LogIn</h2>
             <h4>Enter your name and I'll direct you to the chat page.</h4>
             <input type="text" id="fname" v-model="username" v-on:keyup.enter="addItem()" name="fname">
             <button @click="addItem()">Enter Chat</button>
