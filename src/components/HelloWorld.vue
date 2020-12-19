@@ -4,32 +4,39 @@
       <tbody>
         <tr>
           <td v-if="status == false">
-            <h2>LogIn</h2>
+            <h2>Welcome!</h2>
             <h4>Enter your name and the room-code</h4>
-            <div><input type="text" id="fname" v-model="username" name="fname" placeholder="Name" required></div>
-            <div><input type="password" id="fname" v-model="password" v-on:keyup.enter="addItem()" name="pword" placeholder="Room Code" required></div>
-            <button @click="addItem()">Enter Chat</button>
-            {{loginstatus}}
+            <hr>
+            <div><input type="text" id="fname" class="p-2 m-2" v-model="username" name="fname" placeholder="Name" required></div>
+            <div><input type="text" class="p-2 m-2" id="fname" v-model="password" v-on:keyup.enter="addItem()" name="pword" placeholder="Room Code" required></div>
+            <b-button variant="primary" class="p-2 m-2" @click="addItem()">Enter Chat</b-button>
+            <div>{{loginstatus}}</div>
           </td>
           <td v-if="status">
-              <b-card-text>{{welcomeMessage}} {{username}} Room no. 101 </b-card-text>
+              <b-card-text>{{welcomeMessage}} to the app, {{username}}</b-card-text>
+              <hr>
               <ul id="example-1" class="receiver">
                 <li v-for="message in liveMessages.messages" :key="message.small">
-                  <p v-bind:style="{color: pickColour }" variant="primary" class ="message">{{ message.small }}</p>
+                  <p variant="primary" class ="message">{{ message.small }}</p>
                 </li>
               </ul>
-                <input type="text" id="fname" v-model="chatText" v-on:keyup.enter="updateChat()" name="fname">
-                <b-button @click="updateChat()" variant="dark"><b-icon-cursor-fill></b-icon-cursor-fill></b-button><br>
-              <b-button @click="switchUser()" variant="danger">LogOut</b-button>
+                <div class="input-group mb-3">
+                <input type="text" class="form-control" v-model="chatText" placeholder="Type Here" v-on:keyup.enter="updateChat()" aria-label="Recipient's username" aria-describedby="basic-addon2">
+                <div class="input-group-append">
+                  <span role="button" class="input-group-text" id="basic-addon2" @click="updateChat()">Send</span>
+                </div>
+                </div>
+              <b-button @click="switchUser()" variant="danger" class="p-2 m-2 btn-small">LogOut</b-button>
           </td>
         </tr>
       </tbody>
     </table>
-    Registered Users: 
-    <ul id="example-1" class="receiver">
-      <li v-for="username in usernames" :key="username.username">
-        <b-button variant="info" class ="message">{{ username.username }}</b-button>
-        <b-icon-trash v-if="status == false" @click="deleteUser(username.id)"></b-icon-trash>
+    <hr>
+    <div class="reg-users p-2">Registered Users:</div> 
+    <ul class="reg-users p-2">
+      <li v-for="username in usernames" :key="username.username" class="p-2">
+        <b-button variant="info" disabled class="p-2">{{ username.username }}</b-button>
+        <b-icon-trash v-if="status == false" class="p-2" @click="deleteUser(username.id)"></b-icon-trash>
       </li>
     </ul>
   </div>
@@ -45,15 +52,9 @@ export default {
   },
   created() {
     this.status = false;
-    this.colours = ['red', 'blue', 'pink', 'purple', 'yellow', 'black'];
-    this.pickColour = this.colours[Math.floor(Math.random() * this.colours.length)];
-    this.pickColour = 'black';
-    console.log(this.pickColour);
   },
   data() {
     return {
-      colours: [],
-      pickColour: '',
       names: [],
       usernames: [],
       username: '',
@@ -75,9 +76,9 @@ export default {
     async updateChat() {
       if(this.chatText) {
         this.liveMessages.messages.push({small: this.username + ': ' + this.chatText});
+        this.chatText = '';
         this.liveMessages.sentBy.push({small: this.username});
         await db.collection('room').doc('JvBcBhHYySObwfqxAmtK').update({ messages: this.liveMessages.messages});
-        this.chatText = '';
       }
     },
     async deleteUser(id) {
@@ -90,7 +91,7 @@ export default {
     async addItem() {
       var thisUser = [];
       this.loginstatus=""
-      if (this.username && this.password === 'aE012') {
+      if (this.username && this.password === '1234') {
         this.usernames.forEach((item) => {
           thisUser.push(item.username);
         });
@@ -121,12 +122,10 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .hello {
+  justify-content: center;
   margin: auto;
-  width: 50%;
-  border: 1px solid green;
   padding: 10px;
   text-align: center;
-  margin: 10%;
 }
 .sender {
   list-style-type: none;
@@ -141,5 +140,10 @@ export default {
   min-width: 2rem;
   padding: 2px;
   margin: 2px;
+}
+.reg-users {
+  justify-content: center;
+  text-decoration: none;
+  list-style: none;
 }
 </style>
