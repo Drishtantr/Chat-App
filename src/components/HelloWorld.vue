@@ -5,9 +5,11 @@
         <tr>
           <td v-if="status == false">
             <h2>LogIn</h2>
-            <h4>Enter your name and I'll direct you to the chat page.</h4>
-            <input type="text" id="fname" v-model="username" v-on:keyup.enter="addItem()" name="fname">
+            <h4>Enter your name and the room-code</h4>
+            <div><input type="text" id="fname" v-model="username" name="fname" placeholder="Name" required></div>
+            <div><input type="password" id="fname" v-model="password" v-on:keyup.enter="addItem()" name="pword" placeholder="Room Code" required></div>
             <button @click="addItem()">Enter Chat</button>
+            {{loginstatus}}
           </td>
           <td v-if="status">
               <b-card-text>{{welcomeMessage}} {{username}} Room no. 101 </b-card-text>
@@ -64,7 +66,9 @@ export default {
       messages: [],
       liveMessages: [],
       sentBy: '',
-      welcomeMessage: ''
+      welcomeMessage: '',
+      password: '',
+      loginstatus: '',
     }
   },
   methods: {
@@ -85,7 +89,8 @@ export default {
     },
     async addItem() {
       var thisUser = [];
-      if (this.username) {
+      this.loginstatus=""
+      if (this.username && this.password === 'aE012') {
         this.usernames.forEach((item) => {
           thisUser.push(item.username);
         });
@@ -97,6 +102,12 @@ export default {
         }
         this.items = [];
         this.status = true;
+        this.loginstatus="";
+        this.password=""
+      } else if (this.username === "")  {
+        this.loginstatus="Name Required"
+      } else {
+        this.loginstatus="Incorrect Code"
       }
     },
   },
