@@ -5,7 +5,7 @@
         <tr>
           <td v-if="status == false">
             <h2>Welcome!</h2>
-            <h4>Enter your name and the room-code(1234)</h4>
+            <h4>Enter your name and the room-code(Ae4O2)</h4>
             <hr>
             <div><input type="text" id="fname" class="p-2 m-2" v-model="username" name="fname" placeholder="Name" required></div>
             <div><input type="text" class="p-2 m-2" id="fname" v-model="password" v-on:keyup.enter="addItem()" name="pword" placeholder="Room Code" required></div>
@@ -91,7 +91,7 @@ export default {
     async addItem() {
       var thisUser = [];
       this.loginstatus=""
-      if (this.username && this.password === '1234') {
+      if (this.username && this.password === 'Ae4O2') {
         this.usernames.forEach((item) => {
           thisUser.push(item.username);
         });
